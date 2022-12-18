@@ -6,7 +6,8 @@ declare namespace App {
 	// interface Locals {}
 	// interface PageData {}
 	// interface Platform {}
-	interface Window {
-		ethereum: any;
-	}
+}
+
+declare interface Window {
+	ethereum: any;
 }

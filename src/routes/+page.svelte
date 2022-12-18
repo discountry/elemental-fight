@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { ethers } from 'ethers';
 	import { onMount } from 'svelte';
 
@@ -25,12 +25,18 @@
 
 	const tokenAddress = '0x348B9EaA3350EC3EfDB731FAc13EA1De234d2DE6';
 
-	let provider;
+	/**
+	 * @type {ethers.providers.Web3Provider}
+	 */
+	let provider: ethers.providers.Web3Provider;
 	let signer;
-	let signerAddress;
+	/**
+	 * @type {string | Promise<string>}
+	 */
+	let signerAddress = '';
 	let tokenContract;
 	let tokenBalance = 0;
-	let accountBalance = 0;
+	let accountBalance = '0';
 	let isConnected = false;
 	let isUnlocked = false;
 	let initialized = false;
@@ -42,7 +48,7 @@
 
 		if (typeof window.ethereum !== 'undefined') {
 			// connect
-			await ethereum.request({ method: 'eth_requestAccounts' }).catch((err) => {
+			await ethereum.request({ method: 'eth_requestAccounts' }).catch((err: { code: number }) => {
 				if (err.code === 4001) {
 					// EIP-1193 userRejectedRequest
 					alert('You need to install MetaMask');
@@ -61,19 +67,19 @@
 			signerAddress = await signer.getAddress();
 
 			// get account balance
-			accountBalance = await provider.getBalance(signerAddress);
+			accountBalance = (await provider.getBalance(signerAddress)).toString();
 
 			// erc-20 token
 			// tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
 			// tokenBalance = await tokenContract.balanceOf(signerAddress);
 
 			// update on account change
-			ethereum.on('accountsChanged', function (accounts) {
+			ethereum.on('accountsChanged', function (accounts: string[]) {
 				signerAddress = accounts[0];
 			});
 		} else {
 			alert('MetaMask has not been detected in your browser!');
-			console.err('MetaMask has not been detected in your browser!');
+			console.log('MetaMask has not been detected in your browser!');
 		}
 	}
 
@@ -91,7 +97,7 @@
 
 						// get account balance
 						provider.getBalance(signerAddress).then((_accountBalance) => {
-							accountBalance = _accountBalance;
+							accountBalance = _accountBalance.toString();
 						});
 
 						// erc-20 token balance
